@@ -3,51 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Enviar Correo con Outlook</title>
+  <title>Correo desde Web</title>
   <style>
     body {
-      font-family: sans-serif;
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
+      font-family: sans-serif;
     }
-
-    button {
-      padding: 10px 20px;
+    a.boton {
+      padding: 12px 24px;
       background-color: #0ea5e9;
-      border: none;
-      border-radius: 8px;
       color: white;
+      text-decoration: none;
+      border-radius: 8px;
       font-size: 1rem;
-      cursor: pointer;
     }
-
-    button:hover {
+    a.boton:hover {
       background-color: #0369a1;
     }
   </style>
 </head>
 <body>
-  <h1>Enviar correo con Outlook</h1>
-  <button onclick="enviarCorreo()">Redactar Correo</button>
-
-  <script>
-    function enviarCorreo() {
-      const destinatario = "cliente@ejemplo.com";
-      const asunto = "Cotización de servicios";
-      const cuerpo = `Estimado cliente,
-
-Adjunto encontrará la cotización solicitada.
-
-Saludos cordiales,
-[Tu nombre]`;
-
-      // Codifica el cuerpo para que se abra correctamente
-      const mailtoLink = `mailto:${destinatario}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
-      window.location.href = mailtoLink;
-    }
-  </script>
+  <a class="boton"
+     href="mailto:cliente@ejemplo.com?subject=Cotización%20de%20servicios&body=Estimado%20cliente,%0A%0AAdjunto%20encontrará%20la%20cotización.%0A%0ASaludos%20cordiales,%0A[Tu%20nombre]">
+     Enviar correo
+  </a>
 </body>
 </html>
