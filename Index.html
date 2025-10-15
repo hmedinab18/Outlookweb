@@ -1,104 +1,507 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Enviar Correo desde Web</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRM Ventas & Contratos – MVP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f0f4f8;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 2rem;
-    }
-
-    h1 {
-      color: #0ea5e9;
-      margin-bottom: 1rem;
-    }
-
-    form {
-      background: #ffffff;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      max-width: 500px;
-      width: 100%;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-
-    button {
-      background-color: #0ea5e9;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    button:hover {
-      background-color: #0369a1;
-    }
-
-    .credit {
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #888;
-    }
+    :root{--brand1:#0ea5e9;--brand2:#6366f1}
+    html,body{font-family: Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    .brand-grad{background: linear-gradient(135deg,var(--brand1),var(--brand2));}
+    .card{background:white;border-radius:1rem;box-shadow:0 10px 25px rgba(2,6,23,0.08)}
+    .pill{border-radius:9999px;padding:.25rem .75rem;font-weight:600}
   </style>
 </head>
-<body>
-
-  <h1>Enviar Correo</h1>
-  
-  <form id="formCorreo">
-    <label for="destinatario">Para:</label>
-    <input type="email" id="destinatario" placeholder="cliente@ejemplo.com" required />
-
-    <label for="asunto">Asunto:</label>
-    <input type="text" id="asunto" placeholder="Cotización de servicios" required />
-
-    <label for="cuerpo">Mensaje:</label>
-    <textarea id="cuerpo" rows="6" placeholder="Estimado cliente,%0A%0AAdjunto encontrará la cotización.%0A%0ASaludos cordiales." required></textarea>
-
-    <button type="submit">Enviar correo</button>
-  </form>
-
-  <div class="credit">
-    Web creada por Delicia Peruana © 2025
+<body class="min-h-screen bg-slate-50">
+  <!-- Topbar -->
+  <header class="brand-grad text-white">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-xl sm:text-2xl font-bold">CRM Ventas & Contratos · MVP</h1>
+      <div class="flex items-center gap-3">
+        <span id="userBadge" class="hidden text-sm bg-white/20 px-3 py-1 rounded-full"></span>
+        <button id="btnLogout" class="hidden text-sm font-semibold bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg">Salir</button>
+      </div>
+    </div>
+  </header>  <!-- Auth -->  <section id="auth" class="max-w-6xl mx-auto px-4 mt-10">
+    <div class="grid md:grid-cols-2 gap-6 items-center">
+      <div class="card p-6">
+        <h2 class="text-xl font-semibold mb-2">Iniciar sesión</h2>
+        <p class="text-slate-600 mb-4">MVP sin backend (localStorage). Ideal para demo rápida en GitHub/Vercel. Luego migramos a Next.js + DB.</p>
+        <form id="loginForm" class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium">Usuario</label>
+            <input id="username" class="w-full mt-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-sky-400" placeholder="p.ej. vendedor01" required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Contraseña</label>
+            <input id="password" type="password" class="w-full mt-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-sky-400" placeholder="••••••••" required />
+          </div>
+          <button class="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold px-4 py-2 rounded-lg">Entrar</button>
+        </form>
+        <div class="mt-4 text-sm text-slate-600">
+          <p class="font-semibold mb-1">Cuentas de prueba</p>
+          <ul class="list-disc ml-5 space-y-1">
+            <li><span class="font-semibold">vendedor</span> / 123456 · rol: vendedor</li>
+            <li><span class="font-semibold">gestor</span> / 123456 · rol: gestor</li>
+            <li><span class="font-semibold">admin</span> / 123456 · rol: admin</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card p-6">
+        <h2 class="text-xl font-semibold mb-2">Alcance de este MVP</h2>
+        <ol class="text-slate-700 space-y-2 list-decimal ml-5">
+          <li>Autenticación por rol (vendedor, gestor, admin).</li>
+          <li>Vendedor: registrar venta, ver estado y generar contrato PDF básico.</li>
+          <li>Gestor: ver ventas, actualizar estado y asignar gestor.</li>
+          <li>Admin: ver todo, gestionar usuarios demo.</li>
+          <li>Persistencia en <code>localStorage</code> (demo). Exportar/Importar JSON.</li>
+        </ol>
+        <p class="text-xs text-slate-500 mt-3">⚠️ No usar datos reales en este MVP. Para producción, usar Next.js + DB y control de acceso en servidor.</p>
+      </div>
+    </div>
+  </section>  <!-- App -->  <main id="app" class="hidden max-w-6xl mx-auto px-4 mt-8">
+    <!-- Tabs -->
+    <div class="flex flex-wrap gap-2 mb-4">
+      <button data-tab="ventas" class="tab btn px-4 py-2 rounded-xl bg-white shadow text-slate-700 font-semibold">Mis Ventas</button>
+      <button data-tab="nueva" class="tab btn px-4 py-2 rounded-xl bg-white shadow text-slate-700 font-semibold">Nueva Venta</button>
+      <button data-tab="gestion" class="tab btn px-4 py-2 rounded-xl bg-white shadow text-slate-700 font-semibold">Gestión</button>
+      <button data-tab="usuarios" class="tab btn px-4 py-2 rounded-xl bg-white shadow text-slate-700 font-semibold">Usuarios</button>
+      <div class="ml-auto flex gap-2">
+        <button id="btnExport" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm">Exportar JSON</button>
+        <label class="px-3 py-2 rounded-xl bg-slate-200 text-sm cursor-pointer">
+          Importar JSON<input id="inputImport" type="file" accept="application/json" class="hidden" />
+        </label>
+      </div>
+    </div><!-- Panel: Mis Ventas -->
+<section id="panel-ventas" class="card p-4">
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="text-lg font-semibold">Ventas</h3>
+    <div class="flex gap-2 items-center">
+      <label class="text-sm text-slate-600">Filtrar estado</label>
+      <select id="filterEstado" class="border rounded-lg px-3 py-1">
+        <option value="">Todos</option>
+        <option>Registrado</option>
+        <option>En revisión</option>
+        <option>Aprobado</option>
+        <option>Rechazado</option>
+        <option>Contrato generado</option>
+      </select>
+    </div>
   </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="text-left p-2">ID</th>
+          <th class="text-left p-2">Cliente</th>
+          <th class="text-left p-2">RUC/DNI</th>
+          <th class="text-left p-2">Monto (S/.)</th>
+          <th class="text-left p-2">Estado</th>
+          <th class="text-left p-2">Vendedor</th>
+          <th class="text-left p-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyVentas"></tbody>
+    </table>
+  </div>
+</section>
 
-  <script>
-    document.getElementById("formCorreo").addEventListener("submit", function(event) {
-      event.preventDefault();
+<!-- Panel: Nueva Venta (solo vendedor) -->
+<section id="panel-nueva" class="hidden card p-4">
+  <h3 class="text-lg font-semibold mb-3">Registrar nueva venta</h3>
+  <form id="formVenta" class="grid md:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium">Cliente (Razón Social / Nombres)</label>
+      <input id="vCliente" class="w-full mt-1 px-3 py-2 rounded-lg border" placeholder="Empresa XYZ SAC" required />
+    </div>
+    <div>
+      <label class="block text-sm font-medium">RUC / DNI</label>
+      <input id="vDoc" class="w-full mt-1 px-3 py-2 rounded-lg border" placeholder="2060… / 48…" required />
+    </div>
+    <div>
+      <label class="block text-sm font-medium">Servicio / Plan</label>
+      <input id="vServicio" class="w-full mt-1 px-3 py-2 rounded-lg border" placeholder="Internet Dedicado 100 Mbps" required />
+    </div>
+    <div>
+      <label class="block text-sm font-medium">Monto (S/.)</label>
+      <input id="vMonto" type="number" step="0.01" class="w-full mt-1 px-3 py-2 rounded-lg border" placeholder="1500.00" required />
+    </div>
+    <div class="md:col-span-2">
+      <label class="block text-sm font-medium">Observaciones</label>
+      <textarea id="vObs" class="w-full mt-1 px-3 py-2 rounded-lg border" placeholder="Detalle adicional (opcional)"></textarea>
+    </div>
+    <div class="md:col-span-2 flex gap-2">
+      <button class="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-4 py-2 rounded-lg">Guardar</button>
+      <button type="reset" class="bg-slate-200 px-4 py-2 rounded-lg">Limpiar</button>
+    </div>
+  </form>
+</section>
 
-      const to = document.getElementById("destinatario").value;
-      const subject = document.getElementById("asunto").value;
-      const body = document.getElementById("cuerpo").value;
+<!-- Panel: Gestión (gestor/admin) -->
+<section id="panel-gestion" class="hidden card p-4">
+  <h3 class="text-lg font-semibold mb-3">Gestión de ventas</h3>
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="text-left p-2">ID</th>
+          <th class="text-left p-2">Cliente</th>
+          <th class="text-left p-2">Estado</th>
+          <th class="text-left p-2">Gestor</th>
+          <th class="text-left p-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyGestion"></tbody>
+    </table>
+  </div>
+</section>
 
-      const mailtoLink = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailtoLink;
-    });
-  </script>
+<!-- Panel: Usuarios (admin) -->
+<section id="panel-usuarios" class="hidden card p-4">
+  <h3 class="text-lg font-semibold mb-3">Usuarios (demo)</h3>
+  <p class="text-sm text-slate-600 mb-3">En este MVP los usuarios viven en <code>localStorage</code>. En producción usar base de datos y hashing de contraseñas.</p>
+  <form id="formUser" class="grid md:grid-cols-4 gap-3 items-end">
+    <div>
+      <label class="block text-sm font-medium">Usuario</label>
+      <input id="uUser" class="w-full mt-1 px-3 py-2 rounded-lg border" required />
+    </div>
+    <div>
+      <label class="block text-sm font-medium">Contraseña</label>
+      <input id="uPass" class="w-full mt-1 px-3 py-2 rounded-lg border" required />
+    </div>
+    <div>
+      <label class="block text-sm font-medium">Rol</label>
+      <select id="uRol" class="w-full mt-1 px-3 py-2 rounded-lg border" required>
+        <option value="vendedor">vendedor</option>
+        <option value="gestor">gestor</option>
+        <option value="admin">admin</option>
+      </select>
+    </div>
+    <button class="bg-slate-900 text-white px-4 py-2 rounded-lg">Agregar</button>
+  </form>
+  <div class="overflow-x-auto mt-4">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="text-left p-2">Usuario</th>
+          <th class="text-left p-2">Rol</th>
+          <th class="text-left p-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyUsers"></tbody>
+    </table>
+  </div>
+</section>
 
-</body>
+  </main>  <template id="tplVentaRow">
+    <tr class="border-b">
+      <td class="p-2 font-mono text-xs">#ID#</td>
+      <td class="p-2">#CLIENTE#</td>
+      <td class="p-2">#DOC#</td>
+      <td class="p-2">#MONTO#</td>
+      <td class="p-2"><span class="pill bg-slate-100 text-slate-700">#ESTADO#</span></td>
+      <td class="p-2">#VENDEDOR#</td>
+      <td class="p-2 flex gap-2">
+        <button data-action="contrato" data-id="#ID#" class="text-xs bg-sky-600 hover:bg-sky-700 text-white px-3 py-1 rounded-lg">Contrato</button>
+        <button data-action="ver" data-id="#ID#" class="text-xs bg-slate-200 px-3 py-1 rounded-lg">Ver</button>
+        <button data-action="borrar" data-id="#ID#" class="text-xs bg-rose-600 text-white px-3 py-1 rounded-lg">Borrar</button>
+      </td>
+    </tr>
+  </template>  <template id="tplGestionRow">
+    <tr class="border-b">
+      <td class="p-2 font-mono text-xs">#ID#</td>
+      <td class="p-2">#CLIENTE#</td>
+      <td class="p-2">
+        <select data-edit="estado" data-id="#ID#" class="border rounded-lg px-2 py-1 text-sm">
+          <option>Registrado</option>
+          <option>En revisión</option>
+          <option>Aprobado</option>
+          <option>Rechazado</option>
+          <option>Contrato generado</option>
+        </select>
+      </td>
+      <td class="p-2">
+        <input data-edit="gestor" data-id="#ID#" class="border rounded-lg px-2 py-1 text-sm w-40" placeholder="usuario gestor" />
+      </td>
+      <td class="p-2">
+        <button data-action="guardar" data-id="#ID#" class="text-xs bg-slate-900 text-white px-3 py-1 rounded-lg">Guardar</button>
+      </td>
+    </tr>
+  </template>  <template id="tplUserRow">
+    <tr class="border-b">
+      <td class="p-2 font-mono text-xs">#USER#</td>
+      <td class="p-2">#ROL#</td>
+      <td class="p-2">
+        <button data-user="#USER#" class="btnDelUser text-xs bg-rose-600 text-white px-3 py-1 rounded-lg">Eliminar</button>
+      </td>
+    </tr>
+  </template>  <script>
+    // ======== UTIL ========
+    const LS = {
+      get(k, d){ try{ return JSON.parse(localStorage.getItem(k) ?? JSON.stringify(d)); }catch{ return d } },
+      set(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+    }
+    const fmtMoney = v => Number(v || 0).toLocaleString('es-PE',{minimumFractionDigits:2, maximumFractionDigits:2})
+    const nowIso = () => new Date().toISOString()
+
+    // ======== DATA (demo) ========
+    const seed = () => {
+      if(!localStorage.getItem('users')){
+        LS.set('users',[
+          {user:'vendedor', pass:'123456', rol:'vendedor'},
+          {user:'gestor', pass:'123456', rol:'gestor'},
+          {user:'admin', pass:'123456', rol:'admin'},
+        ])
+      }
+      if(!localStorage.getItem('ventas')){
+        LS.set('ventas',[
+          {id:1, cliente:'ACME SAC', doc:'20601234567', servicio:'Internet Dedicado 100', monto:1500, estado:'Registrado', vendedor:'vendedor', gestor:'', obs:'Demo', fecha: nowIso()}
+        ])
+      }
+    }
+    seed()
+
+    // ======== AUTH ========
+    let session = LS.get('session', null)
+    const elAuth = document.getElementById('auth')
+    const elApp = document.getElementById('app')
+    const userBadge = document.getElementById('userBadge')
+    const btnLogout = document.getElementById('btnLogout')
+
+    function enter(){
+      if(!session){ elAuth.classList.remove('hidden'); elApp.classList.add('hidden'); btnLogout.classList.add('hidden'); userBadge.classList.add('hidden'); return }
+      elAuth.classList.add('hidden'); elApp.classList.remove('hidden'); btnLogout.classList.remove('hidden'); userBadge.classList.remove('hidden')
+      userBadge.textContent = session.user + ' · ' + session.rol
+      renderTabsForRole()
+      renderAll()
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', e=>{
+      e.preventDefault()
+      const u = document.getElementById('username').value.trim()
+      const p = document.getElementById('password').value.trim()
+      const users = LS.get('users', [])
+      const found = users.find(x=>x.user===u && x.pass===p)
+      if(!found){ alert('Usuario o contraseña incorrectos'); return }
+      session = {user:found.user, rol:found.rol}
+      LS.set('session', session)
+      enter()
+    })
+
+    btnLogout.addEventListener('click', ()=>{ LS.set('session', null); session=null; enter() })
+
+    // ======== TABS ========
+    const tabs = document.querySelectorAll('.tab')
+    const panels = {
+      ventas: document.getElementById('panel-ventas'),
+      nueva: document.getElementById('panel-nueva'),
+      gestion: document.getElementById('panel-gestion'),
+      usuarios: document.getElementById('panel-usuarios'),
+    }
+    function showTab(name){ Object.values(panels).forEach(p=>p.classList.add('hidden')); panels[name]?.classList.remove('hidden'); }
+    tabs.forEach(b=> b.addEventListener('click', ()=> showTab(b.dataset.tab)))
+
+    function renderTabsForRole(){
+      const role = session?.rol
+      document.querySelector('[data-tab="nueva"]').classList.toggle('hidden', role!=='vendedor')
+      document.querySelector('[data-tab="gestion"]').classList.toggle('hidden', !(role==='gestor'||role==='admin'))
+      document.querySelector('[data-tab="usuarios"]').classList.toggle('hidden', role!=='admin')
+      showTab('ventas')
+    }
+
+    // ======== VENTAS ========
+    const tbodyVentas = document.getElementById('tbodyVentas')
+    const filterEstado = document.getElementById('filterEstado')
+
+    function listVentas(){ return LS.get('ventas', []) }
+    function saveVentas(v){ LS.set('ventas', v) }
+
+    function renderVentas(){
+      const role = session?.rol
+      const user = session?.user
+      const vs = listVentas().filter(v=> role==='admin' || role==='gestor' || v.vendedor===user)
+      const filtro = filterEstado.value
+      const rows = vs.filter(v=> !filtro || v.estado===filtro).map(v=>{
+        let row = document.getElementById('tplVentaRow').innerHTML
+        row = row.replaceAll('#ID#', v.id)
+          .replace('#CLIENTE#', escapeHtml(v.cliente))
+          .replace('#DOC#', escapeHtml(v.doc))
+          .replace('#MONTO#', fmtMoney(v.monto))
+          .replace('#ESTADO#', escapeHtml(v.estado))
+          .replace('#VENDEDOR#', escapeHtml(v.vendedor))
+        return row
+      }).join('')
+      tbodyVentas.innerHTML = rows || '<tr><td class="p-3 text-slate-500" colspan="7">Sin registros</td></tr>'
+
+      tbodyVentas.querySelectorAll('button').forEach(btn=>{
+        const id = Number(btn.dataset.id)
+        btn.addEventListener('click', ()=>{
+          const action = btn.dataset.action
+          if(action==='borrar') delVenta(id)
+          if(action==='ver') alert(JSON.stringify(listVentas().find(v=>v.id===id), null, 2))
+          if(action==='contrato') genContrato(id)
+        })
+      })
+    }
+
+    filterEstado.addEventListener('change', renderVentas)
+
+    function delVenta(id){
+      const role = session?.rol
+      const vs = listVentas()
+      const v = vs.find(x=>x.id===id)
+      if(!v) return
+      if(role==='vendedor' && v.vendedor!==session.user){ return alert('Solo puedes borrar tus propias ventas') }
+      saveVentas(vs.filter(x=>x.id!==id))
+      renderAll()
+    }
+
+    // ======== NUEVA VENTA ========
+    document.getElementById('formVenta').addEventListener('submit', e=>{
+      e.preventDefault()
+      const vs = listVentas()
+      const id = (vs.at(-1)?.id ?? 0) + 1
+      const data = {
+        id,
+        cliente: sanitize(document.getElementById('vCliente').value),
+        doc: sanitize(document.getElementById('vDoc').value),
+        servicio: sanitize(document.getElementById('vServicio').value),
+        monto: Number(document.getElementById('vMonto').value||0),
+        obs: sanitize(document.getElementById('vObs').value||''),
+        estado: 'Registrado',
+        vendedor: session.user,
+        gestor: '',
+        fecha: nowIso()
+      }
+      vs.push(data); saveVentas(vs)
+      e.target.reset(); showTab('ventas'); renderAll()
+    })
+
+    // ======== GESTIÓN ========
+    const tbodyGestion = document.getElementById('tbodyGestion')
+    function renderGestion(){
+      const rows = listVentas().map(v=>{
+        let row = document.getElementById('tplGestionRow').innerHTML
+        row = row.replaceAll('#ID#', v.id).replace('#CLIENTE#', escapeHtml(v.cliente))
+        return row
+      }).join('')
+      tbodyGestion.innerHTML = rows || '<tr><td class="p-3 text-slate-500" colspan="5">Sin registros</td></tr>'
+
+      // set current values
+      tbodyGestion.querySelectorAll('select[data-edit="estado"]').forEach(el=>{
+        const id = Number(el.dataset.id); const v = listVentas().find(x=>x.id===id); el.value = v?.estado||'Registrado'
+      })
+      tbodyGestion.querySelectorAll('input[data-edit="gestor"]').forEach(el=>{
+        const id = Number(el.dataset.id); const v = listVentas().find(x=>x.id===id); el.value = v?.gestor||''
+      })
+
+      tbodyGestion.querySelectorAll('button[data-action="guardar"]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = Number(btn.dataset.id)
+          const vs = listVentas()
+          const idx = vs.findIndex(x=>x.id===id)
+          if(idx<0) return
+          const est = tbodyGestion.querySelector(`select[data-edit="estado"][data-id="${id}"]`).value
+          const ges = sanitize(tbodyGestion.querySelector(`input[data-edit="gestor"][data-id="${id}"]`).value)
+          vs[idx].estado = est
+          vs[idx].gestor = ges
+          saveVentas(vs)
+          renderAll()
+        })
+      })
+    }
+
+    // ======== USUARIOS (ADMIN) ========
+    const tbodyUsers = document.getElementById('tbodyUsers')
+    function listUsers(){ return LS.get('users', []) }
+    function saveUsers(u){ LS.set('users', u) }
+
+    document.getElementById('formUser').addEventListener('submit', e=>{
+      e.preventDefault()
+      const u = sanitize(document.getElementById('uUser').value)
+      const p = document.getElementById('uPass').value
+      const r = document.getElementById('uRol').value
+      const users = listUsers()
+      if(users.some(x=>x.user===u)) return alert('Usuario ya existe')
+      users.push({user:u, pass:p, rol:r}); saveUsers(users)
+      e.target.reset(); renderUsers()
+    })
+
+    function renderUsers(){
+      const role = session?.rol
+      document.getElementById('panel-usuarios').classList.toggle('hidden', role!=='admin')
+      const rows = listUsers().map(u=>{
+        let row = document.getElementById('tplUserRow').innerHTML
+        row = row.replaceAll('#USER#', escapeHtml(u.user)).replace('#ROL#', escapeHtml(u.rol))
+        return row
+      }).join('')
+      tbodyUsers.innerHTML = rows || '<tr><td class="p-3 text-slate-500" colspan="3">Sin usuarios</td></tr>'
+
+      tbodyUsers.querySelectorAll('.btnDelUser').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const u = btn.dataset.user
+          const users = listUsers().filter(x=>x.user!==u)
+          saveUsers(users); renderUsers()
+        })
+      })
+    }
+
+    // ======== CONTRATO (PDF) ========
+    async function genContrato(id){
+      const v = listVentas().find(x=>x.id===id)
+      if(!v) return
+      const { jsPDF } = window.jspdf
+      const doc = new jsPDF()
+      const today = new Date()
+      doc.setFontSize(16)
+      doc.text('CONTRATO DE SERVICIO – DEMO', 20, 20)
+      doc.setFontSize(11)
+      doc.text(`Fecha: ${today.toLocaleDateString('es-PE')}`, 20, 30)
+      doc.text(`Cliente: ${v.cliente}`, 20, 40)
+      doc.text(`Documento: ${v.doc}`, 20, 48)
+      doc.text(`Servicio: ${v.servicio}`, 20, 56)
+      doc.text(`Monto: S/. ${fmtMoney(v.monto)}`, 20, 64)
+      doc.text(`Vendedor: ${v.vendedor}`, 20, 72)
+      doc.text('Este documento es un DEMO generado en el navegador.', 20, 88)
+      doc.save(`CONTRATO_${String(v.id).padStart(4,'0')}.pdf`)
+
+      // actualizar estado
+      const vs = listVentas(); const idx = vs.findIndex(x=>x.id===id)
+      if(idx>=0){ vs[idx].estado = 'Contrato generado'; saveVentas(vs); renderAll() }
+    }
+
+    // ======== EXPORT/IMPORT ========
+    document.getElementById('btnExport').addEventListener('click', ()=>{
+      const payload = { users:listUsers(), ventas:listVentas() }
+      const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'})
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'crm_data.json'; a.click()
+    })
+    document.getElementById('inputImport').addEventListener('change', e=>{
+      const file = e.target.files?.[0]; if(!file) return
+      const reader = new FileReader()
+      reader.onload = () => {
+        try{ const data = JSON.parse(reader.result)
+          if(Array.isArray(data.users)) saveUsers(data.users)
+          if(Array.isArray(data.ventas)) saveVentas(data.ventas)
+          renderAll()
+        }catch{ alert('JSON inválido') }
+      }
+      reader.readAsText(file)
+      e.target.value = ''
+    })
+
+    // ======== SECURITY HELPERS (front only) ========
+    function sanitize(s){ return (s||'').toUpperCase().replace(/\s+/g,' ').trim() }
+    function escapeHtml(s){ return (s??'').toString().replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])) }
+
+    // ======== RENDER ALL ========
+    function renderAll(){ renderVentas(); renderGestion(); renderUsers() }
+
+    // init
+    enter()
+  </script></body>
 </html>
