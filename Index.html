@@ -3,32 +3,102 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Correo desde Web</title>
+  <title>Enviar Correo desde Web</title>
   <style>
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       font-family: sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
     }
-    a.boton {
-      padding: 12px 24px;
-      background-color: #0ea5e9;
-      color: white;
-      text-decoration: none;
+
+    h1 {
+      color: #0ea5e9;
+      margin-bottom: 1rem;
+    }
+
+    form {
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 1rem;
     }
-    a.boton:hover {
+
+    button {
+      background-color: #0ea5e9;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    button:hover {
       background-color: #0369a1;
+    }
+
+    .credit {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #888;
     }
   </style>
 </head>
 <body>
-  <a class="boton"
-     href="mailto:cliente@ejemplo.com?subject=Cotización%20de%20servicios&body=Estimado%20cliente,%0A%0AAdjunto%20encontrará%20la%20cotización.%0A%0ASaludos%20cordiales,%0A[Tu%20nombre]">
-     Enviar correo
-  </a>
+
+  <h1>Enviar Correo</h1>
+  
+  <form id="formCorreo">
+    <label for="destinatario">Para:</label>
+    <input type="email" id="destinatario" placeholder="cliente@ejemplo.com" required />
+
+    <label for="asunto">Asunto:</label>
+    <input type="text" id="asunto" placeholder="Cotización de servicios" required />
+
+    <label for="cuerpo">Mensaje:</label>
+    <textarea id="cuerpo" rows="6" placeholder="Estimado cliente,%0A%0AAdjunto encontrará la cotización.%0A%0ASaludos cordiales." required></textarea>
+
+    <button type="submit">Enviar correo</button>
+  </form>
+
+  <div class="credit">
+    Web creada por Delicia Peruana © 2025
+  </div>
+
+  <script>
+    document.getElementById("formCorreo").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const to = document.getElementById("destinatario").value;
+      const subject = document.getElementById("asunto").value;
+      const body = document.getElementById("cuerpo").value;
+
+      const mailtoLink = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoLink;
+    });
+  </script>
+
 </body>
 </html>
